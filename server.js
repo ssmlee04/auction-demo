@@ -93,6 +93,7 @@ const main = async () => {
       await hbee.put(auction.id, JSON.stringify(auction))
 
       const highest_bid = auction.history[auction.history.length - 1]
+      // TODO:
       // add owner balance and subtract user balance
       // transfer item ownership to new user
       // remove from auction list after certain period of time
@@ -109,22 +110,31 @@ const main = async () => {
     return info
   }
 
+  const add_auction_list = async (auction) => {
+    let info = []
+    try {
+      info = JSON.parse((await hbee.get('auction_list'))?.value.toString())
+    } catch (err) {
+
+    }
+    const auction_ids = info.concat([auction.id])
+    await hbee.put("auction_list", JSON.stringify(auction_ids))
+  }
+  
+  const create_auction = async (user_id, picture_meta) => {
+    const auction = await make_auction(req.user_id, req.picture_meta)
+    await hbee.put(auction.id, JSON.stringify(auction))
+    await add_auction_list(auction)
+    return auction;
+  }
+
   // bind handlers to rpc server
   rpcServer.respond('ping', async (reqRaw) => {
     // reqRaw is Buffer, we need to parse it
     const req = JSON.parse(reqRaw.toString('utf-8'))
 
     if (req.type === 'create_auction') {
-      const auction = await make_auction(req.user_id, req.picture_meta)
-      await hbee.put(auction.id, JSON.stringify(auction))
-      let info = []
-      try {
-        info = JSON.parse((await hbee.get('auction_list'))?.value.toString())
-      } catch (err) {
-
-      }
-      const auction_ids = info.concat([auction.id])
-      await hbee.put("auction_list", JSON.stringify(auction_ids))
+      const auction = await create_auction(req.user_id, req.picture_meta)
       const respRaw = Buffer.from(JSON.stringify(auction), 'utf-8')
       return respRaw
     }
