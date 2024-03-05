@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "hyperbee": "^2.18.2",
+    "hypercore": "^10.33.2",
+    "hyperswarm": "^4.7.14"
+  }
+}
