@@ -4,6 +4,8 @@ The idea is to have the validation logic occur on the servers. We will assume cl
 
 For bidding: for usual stateful applications I will have an auction state with a history of bids. And upon receiving new bids I will do the validation there and attach new bids. In a SQL world I will use 2-phase commit. As for Hyperbee, I'm unsure what's the best thing to do here so the following code is probably not ok against race conditions.
 
+Another thing is broadcasting. It seems that I can create a Pear terminal application and do `pear dev` for clients to connect to each other. However, in terms of `@hyperswarm/rpc` I wasn't able to find a way to broadcast messages to all rpcServer connections. If I can achieve that and then clients might be able to do a bit of validation before sending their bids.
+
 # some db schema designs
 
 * open auctions

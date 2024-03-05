@@ -118,7 +118,6 @@ const main = async () => {
 
   const get_auction = async (auction_id) => {
     let auction = JSON.parse((await hbee.get(auction_id))?.value)
-    console.log(auction)
     return auction
   }
 
