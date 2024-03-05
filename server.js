@@ -9,7 +9,14 @@ const _ = require('lodash')
 
 const max_number_auctions = 10;
 
-const is_valid_bid = (bid, expiration_ts, history) => {
+const is_valid_bid = (amount, expiration_ts, history) => {
+  const last_bid = _.last(history || [])
+  if (amount <= last_bid.amount) {
+    return { error: 'invalid_bid_size' }  
+  }
+  if (Date.now() > expiration_ts) {
+    return { error: 'invalid_bid_time' }  
+  }
   return { error: null }
 }
 
@@ -67,7 +74,7 @@ const main = async () => {
     const default_expiration_delta_ts = 5000
     const bid = { auction_id, user_id, amount, expiration_delta_ts: default_expiration_delta_ts }
 
-    const { error, message } = is_valid_bid(bid, auction_id.expiration_ts, auction.history)
+    const { error, message } = is_valid_bid(amount, auction_id.expiration_ts, auction.history)
     if (error === 'invalid_bid_size') {
       const respRaw = Buffer.from('invalid bid size', 'utf-8')
       return respRaw
@@ -130,11 +137,8 @@ const main = async () => {
   
   const create_auction = async (user_id, picture_meta) => {
     const auction = await make_auction(user_id, picture_meta)
-    console.log(1)
     await hbee.put(auction.id, JSON.stringify(auction))
-    console.log(2)
     await add_auction_list(auction)
-    console.log(3)
     return auction;
   }
 
