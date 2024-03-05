@@ -55,7 +55,8 @@ const main = async () => {
       owner_id: user_id,
       picture: picture_meta, 
       history: [],
-      expiration_ts: Date.now()
+      expiration_ts: Date.now() + 86400000,
+      is_open: true
     }
     return auction
   }
@@ -80,10 +81,22 @@ const main = async () => {
     return respRaw
   }
 
+  const should_close_auction = (id, history, expiration_ts) => {
+    const all_expiration_delta_ts = history.reduce((t, d) => t + d.expiration_delta_ts, 0)
+    return Date.now() > expiration_ts + all_expiration_delta_ts
+  }
   const check_and_close_auction = async (auction_id) => {
     // get auction by id
-    // add owner balance and subtract user balance
-    // transfer item ownership to new user
+    let auction = JSON.parse((await hbee.get(auction_id))?.value)
+    if (should_close_auction(auction.id, auction.history, auction.expiration_ts)) {
+      auction.is_open = false
+      await hbee.put(auction.id, JSON.stringify(auction))
+
+      const highest_bid = auction.history[auction.history.length - 1]
+      // add owner balance and subtract user balance
+      // transfer item ownership to new user
+      // remove from auction list after certain period of time
+    }
   }
   
   const list_auctions = async () => {
