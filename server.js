@@ -11,7 +11,7 @@ const max_number_auctions = 10;
 
 const is_valid_bid = (amount, expiration_ts, history) => {
   const last_bid = _.last(history || [])
-  if (amount <= last_bid.amount) {
+  if (last_bid && amount <= last_bid.amount) {
     return { error: 'invalid_bid_size' }  
   }
   if (Date.now() > expiration_ts) {
@@ -92,6 +92,7 @@ const main = async () => {
   }
 
   const check_and_close_auction = async (auction_id) => {
+    console.log({auction_id})
     // get auction by id
     let auction = JSON.parse((await hbee.get(auction_id))?.value)
     if (should_close_auction(auction.id, auction.history, auction.expiration_ts)) {
@@ -103,7 +104,9 @@ const main = async () => {
       // add owner balance and subtract user balance
       // transfer item ownership to new user
       // remove from auction list after certain period of time
+      return {message: 'ok'}
     }
+    return {error: 'cannot close auction'}
   }
   
   const list_auctions = async () => {
@@ -162,6 +165,11 @@ const main = async () => {
     if (req.type === 'get_auction') {
       const auction = await get_auction(req.auction_id)
       const respRaw = Buffer.from(JSON.stringify(auction), 'utf-8')
+      return respRaw
+    }
+    if (req.type === 'close_auction') {
+      const result = await check_and_close_auction(req.auction_id)
+      const respRaw = Buffer.from(JSON.stringify(result), 'utf-8')
       return respRaw
     }
   })

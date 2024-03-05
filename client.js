@@ -29,7 +29,7 @@ const main = async () => {
   await dht.ready()
 
   // public key of rpc server, used instead of address, the address is discovered via dht
-  const serverPubKey = Buffer.from('fc757faf39eb7140f512ed9b262a537584a0d6ff41c8e924026ec327503f5098', 'hex')
+  const serverPubKey = Buffer.from('2d5571aeca4d8b51732e77f4cd2de6dbd18b59a31f526838917edcf29a7ff100', 'hex')
 
   // rpc lib
   const rpc = new RPC({ dht })
@@ -49,6 +49,13 @@ const main = async () => {
     const resp = JSON.parse(respRaw.toString('utf-8'))
     console.log(resp)
   }
+  const close_auction = async (auction_id) => {
+    const payload = { type: "close_auction", auction_id }
+    const payloadRaw = Buffer.from(JSON.stringify(payload), 'utf-8')
+    const respRaw = await rpc.request(serverPubKey, 'ping', payloadRaw)
+    const resp = JSON.parse(respRaw.toString('utf-8'))
+    console.log(resp)
+  }
 
   process.stdin.on('data', async (d) => {
     const cmd = d.toString()
@@ -63,6 +70,11 @@ const main = async () => {
       // server handles bid operations and does some validation there
       const { auction_id, user_id, amount } = JSON.parse(cmd.slice('bid auction:'.length + 1).trim())
       bid_auction(auction_id, user_id, amount)
+    }
+    if (cmd.indexOf('close auction:') === 0) {
+      // server handles bid operations and does some validation there
+      const { auction_id } = JSON.parse(cmd.slice('close auction:'.length + 1).trim())
+      close_auction(auction_id)
     }
     if (cmd.indexOf('list auctions.') === 0) {
       // we ask a server to give us a list of auctions
