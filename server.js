@@ -76,12 +76,10 @@ const main = async () => {
 
     const { error, message } = is_valid_bid(amount, auction_id.expiration_ts, auction.history)
     if (error === 'invalid_bid_size') {
-      const respRaw = Buffer.from('invalid bid size', 'utf-8')
-      return respRaw
+      return error
     }
     if (error === 'invalid_bid_time') {
-      const respRaw = Buffer.from('invalid bid time', 'utf-8')
-      return respRaw
+      return error
     }
     auction.history.push(bid)
     await hbee.put(auction_id, JSON.stringify(auction))

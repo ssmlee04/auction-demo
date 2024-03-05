@@ -8,7 +8,7 @@ const crypto = require('crypto')
 
 const main = async () => {
   // hyperbee db
-  const hcore = new Hypercore('./db/rpc-client')
+  const hcore = new Hypercore('./db/rpc-client' + crypto.randomUUID())
   const hbee = new Hyperbee(hcore, { keyEncoding: 'utf-8', valueEncoding: 'binary' })
   await hbee.ready()
 
@@ -39,7 +39,7 @@ const main = async () => {
     const payloadRaw = Buffer.from(JSON.stringify(payload), 'utf-8')
     const respRaw = await rpc.request(serverPubKey, 'ping', payloadRaw)
     const resp = JSON.parse(respRaw.toString('utf-8'))
-    console.log({resp});
+    console.log(resp);
   }
 
   const bid_auction = async (auction_id, user_id, amount) => {
