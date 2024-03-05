@@ -10,35 +10,43 @@ For bidding: for usual stateful applications I will have an auction state with a
 
 an auction be like 
 
+```
 {
   _id: ... (this can be used as a topic people pubsub to)
   owner_id: ... (owner of the item)
   picture: ... (some metadata for actual lookup)
   bids: [bid1, bid2, ...]
 }
+```
 
 a bid be like 
 
+```
 {
   user_id: ...
   amount: ...
   expiration_delta_ts: ... // this is like if someone bids on this listing, the expiration ts can be extended a bit for more decisions. 
 }
+```
 
 a user is like 
 
+```
 {
   _id: ...
   name: ...
 }
+```
 
 a user balance be like
 
+```
 {
  _id: ...
   user_id: ... 
   amount: 0
 } 
+```
 
 # commands to run on clients:
 
