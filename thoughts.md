@@ -33,6 +33,8 @@ a bid be like
 }
 
 
-create_auction() {
+# commands:
 
-}
+create auction: {"user_id": "user1", "picture_meta": "meta1"}
+get auction: {"auction_id": "b1d0f5b4-d207-48e4-aa29-f6e03778e357"}
+bid auction: {"auction_id": "b1d0f5b4-d207-48e4-aa29-f6e03778e357", "user_id": "user3", "amount": 2}
