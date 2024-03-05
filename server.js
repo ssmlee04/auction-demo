@@ -166,10 +166,10 @@ const main = async () => {
     }
   })
   
-  setInterval(async () => {
-    const auction_ids = await list_auctions()
-    auction_ids.map(check_and_close_auction)
-  }, 5000)
+  // setInterval(async () => {
+  //   const auction_ids = await list_auctions()
+  //   auction_ids.map(check_and_close_auction)
+  // }, 5000)
 }
 
 main().catch(console.error)
