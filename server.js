@@ -5,6 +5,7 @@ const DHT = require('hyperdht')
 const Hypercore = require('hypercore')
 const Hyperbee = require('hyperbee')
 const crypto = require('crypto')
+const _ = require('lodash')
 
 const max_number_auctions = 10;
 
@@ -77,14 +78,14 @@ const main = async () => {
     }
     auction.history.push(bid)
     await hbee.put(auction_id, JSON.stringify(auction))
-    const respRaw = Buffer.from('bid is ok', 'utf-8')
-    return respRaw
+    return 'ok'
   }
 
   const should_close_auction = (id, history, expiration_ts) => {
     const all_expiration_delta_ts = history.reduce((t, d) => t + d.expiration_delta_ts, 0)
     return Date.now() > expiration_ts + all_expiration_delta_ts
   }
+
   const check_and_close_auction = async (auction_id) => {
     // get auction by id
     let auction = JSON.parse((await hbee.get(auction_id))?.value)
@@ -110,6 +111,12 @@ const main = async () => {
     return info
   }
 
+  const get_auction = async (auction_id) => {
+    let auction = JSON.parse((await hbee.get(auction_id))?.value)
+    console.log(auction)
+    return auction
+  }
+
   const add_auction_list = async (auction) => {
     let info = []
     try {
@@ -122,16 +129,19 @@ const main = async () => {
   }
   
   const create_auction = async (user_id, picture_meta) => {
-    const auction = await make_auction(req.user_id, req.picture_meta)
+    const auction = await make_auction(user_id, picture_meta)
+    console.log(1)
     await hbee.put(auction.id, JSON.stringify(auction))
+    console.log(2)
     await add_auction_list(auction)
+    console.log(3)
     return auction;
   }
 
-  // bind handlers to rpc server
   rpcServer.respond('ping', async (reqRaw) => {
     // reqRaw is Buffer, we need to parse it
     const req = JSON.parse(reqRaw.toString('utf-8'))
+    console.log(`type: ${req.type}`)
 
     if (req.type === 'create_auction') {
       const auction = await create_auction(req.user_id, req.picture_meta)
@@ -145,13 +155,18 @@ const main = async () => {
     }
     if (req.type === 'list_auctions') {
       const auction_ids = await list_auctions()
-      const respRaw = Buffer.from(JSON.stringify(info), 'utf-8')
+      const respRaw = Buffer.from(JSON.stringify(auction_ids), 'utf-8')
+      return respRaw
+    }
+    if (req.type === 'get_auction') {
+      const auction = await get_auction(req.auction_id)
+      const respRaw = Buffer.from(JSON.stringify(auction), 'utf-8')
       return respRaw
     }
   })
   
   setInterval(async () => {
-    const auction_ids = await auction_ids()
+    const auction_ids = await list_auctions()
     auction_ids.map(check_and_close_auction)
   }, 5000)
 }

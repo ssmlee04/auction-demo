@@ -7,6 +7,7 @@
     "hyperbee": "^2.18.2",
     "hypercore": "^10.33.2",
     "hypercore-crypto": "^3.4.0",
-    "hyperswarm": "^4.7.14"
+    "hyperswarm": "^4.7.14",
+    "lodash": "^4.17.21"
   }
 }

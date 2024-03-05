@@ -34,31 +34,20 @@ const main = async () => {
   // rpc lib
   const rpc = new RPC({ dht })
 
-  // payload for request
-  const payload = { nonce: 126 }
-  const payloadRaw = Buffer.from(JSON.stringify(payload), 'utf-8')
-
-  // sending request and handling response
-  // see console output on server code for public key as this changes on different instances
-  const respRaw = await rpc.request(serverPubKey, 'ping', payloadRaw)
-  const resp = JSON.parse(respRaw.toString('utf-8'))
-
   const create_auction = async (user_id, picture_meta) => {
     const payload = { type: "create_auction", user_id, picture_meta }
     const payloadRaw = Buffer.from(JSON.stringify(payload), 'utf-8')
     const respRaw = await rpc.request(serverPubKey, 'ping', payloadRaw)
     const resp = JSON.parse(respRaw.toString('utf-8'))
-  }
-
-  const get_auction = async (auction_id) => {
-    let auction = JSON.parse((await hbee.get(auction_id))?.value)
-    return auction
+    console.log({resp});
   }
 
   const bid_auction = async (auction_id, user_id, amount) => {
     const payload = { type: "bid_auction", auction_id, user_id, amount }
     const payloadRaw = Buffer.from(JSON.stringify(payload), 'utf-8')
-    await rpc.request(serverPubKey, 'ping', payloadRaw)
+    const respRaw = await rpc.request(serverPubKey, 'ping', payloadRaw)
+    const resp = JSON.parse(respRaw.toString('utf-8'))
+    console.log(resp)
   }
 
   process.stdin.on('data', async (d) => {
@@ -81,10 +70,15 @@ const main = async () => {
       const payloadRaw = Buffer.from(JSON.stringify(payload), 'utf-8')
       const respRaw = await rpc.request(serverPubKey, 'ping', payloadRaw)
       const resp = JSON.parse(respRaw.toString('utf-8'))
+      console.log(resp)
     }
     if (cmd.indexOf('get auction:') === 0) {
       const { auction_id } = JSON.parse(cmd.slice('get auction:'.length + 1).trim())
-      get_auction(auction_id)
+      const payload = { type: "get_auction", auction_id }
+      const payloadRaw = Buffer.from(JSON.stringify(payload), 'utf-8')
+      const respRaw = await rpc.request(serverPubKey, 'ping', payloadRaw)
+      const resp = JSON.parse(respRaw.toString('utf-8'))
+      console.log(resp)
     }
   })
 
